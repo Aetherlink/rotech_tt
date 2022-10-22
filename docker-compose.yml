@@ -1,0 +1,57 @@
+version: "3.8"
+
+volumes:
+  vol-emqx-data:
+    name: foo-emqx-data
+  vol-emqx-etc:
+    name: foo-emqx-etc
+  vol-emqx-log:
+    name: foo-emqx-log
+
+
+services:
+
+  emqx:
+    container_name: emqx
+    image: emqx/emqx:latest
+    restart: always
+    ports:
+      - ${emqxdashport}:18083
+      - 8083:8083
+      - 1883:1883
+    volumes:
+      - vol-emqx-data:/opt/emqx/data
+      - vol-emqx-etc:/opt/emqx/etc
+      - vol-emqx-log:/opt/emqx/log
+
+    environment: 
+      EMQX_NAME: iot-aether
+      EMQX_HOST: 192.168.100.54
+      TZ: "America/Guayaquil"
+      #listener.tcp.external.max_connections
+      EMQX_LISTENER__TCP__EXTERNAL__MAX_CONNECTIONS: 5000
+
+  node-red:
+    container_name: node-red
+    image: nodered/node-red:latest
+    restart: always
+    environment:
+      - TZ=Europe/Amsterdam
+    ports:
+      - "1880:1880"
+    links:
+      - mongo:mongodb
+      - emqx:emqx nodered/node-red-docker
+
+  mongo:
+    container_name: mongo
+    image: mongo:4.4
+    restart: always
+    environment:
+      TZ: "America/Guayaquil"
+      
+    volumes:
+      - ./mongodata:/data/db
+    ports:
+      - 27017:27017
+    #Install node-red-node-mongodb (v. 0.0.14)
