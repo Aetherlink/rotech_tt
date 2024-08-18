@@ -1,9 +1,50 @@
 version: "3"
 
 volumes:
+  nodered:
   mongodata:
+  vol-emqx-data:
+    name: foo-emqx-data
+  vol-emqx-etc:
+    name: foo-emqx-etc
+  vol-emqx-log:
+    name: foo-emqx-log
   
 services:
+  node-red:
+    container_name: Node-red
+    image: nodered/node-red:latest
+    restart: always
+    environment:
+      - TZ=America/Guayaquil
+      # modificar clave de acceso en setting.js con bcrypt
+    volumes:
+      - ./nodered:/data
+    ports:
+      - "1880:1880"
+    networks:
+      - arobalink
+
+  emqx:
+    container_name: emqx
+    image: emqx/emqx:latest
+    restart: always
+    environment: 
+      EMQX_NAME: iot-arobalink
+      EMQX_HOST: 192.168.100.54
+      TZ: "America/Guayaquil"
+      #listener.tcp.external.max_connections
+      EMQX_LISTENER__TCP__EXTERNAL__MAX_CONNECTIONS: 5000
+    volumes:
+      - vol-emqx-data:/opt/emqx/data
+      - vol-emqx-etc:/opt/emqx/etc
+      - vol-emqx-log:/opt/emqx/log
+    ports:
+      - 18083:18083
+      - 8083:8083
+      - 1883:1883
+    networks:
+      - arobalink
       
   mongo:
     container_name: Mongo
