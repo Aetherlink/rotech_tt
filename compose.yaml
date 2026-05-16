@@ -2,7 +2,7 @@ version: "3"
 
 volumes:
   nodered:
-  mongodata:
+  db_data:
   vol-emqx-data:
     name: foo-emqx-data
   vol-emqx-etc:
@@ -46,18 +46,18 @@ services:
     networks:
       - arobalink
       
-  mongo:
-    container_name: Mongo
-    image: mongo:4.4
+  db:
+    container_name: Postgres
+    image: postgres:latest
     restart: always
     environment:
-      TZ: "America/Guayaquil"
-      MONGO_INITDB_ROOT_USERNAME: "CRobalino"
-      MONGO_INITDB_ROOT_PASSWORD: "O6i5a2o7"
+      POSTGRES_USER: Veo_user
+      POSTGRES_PASSWORD: HK.2026%
+      POSTGRES_DB: HK
     volumes:
-      - ./mongodata:/data/db
+      - db_data:/var/lib/postgresql/data
     ports:
-      - 27017:27017
+      - "5432:5432"
     networks:
       - arobalink
 
